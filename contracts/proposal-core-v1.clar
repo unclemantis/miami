@@ -18,23 +18,19 @@
 ;;
 
 (define-private (is-proposal (proposal (optional { creator: principal, title: (string-utf8 60), start: uint, end: uint, is-open: bool })))
-  (is-some proposal)
-)
+  (is-some proposal))
 
 ;; public functions
 ;;
 
 (define-read-only (get-proposal-ids)
-    (var-get proposal-ids)
-)
+    (var-get proposal-ids))
 
 (define-read-only (get-proposals)
-    (filter is-proposal (map get-proposal (get-proposal-ids)))
-)
+    (filter is-proposal (map get-proposal (get-proposal-ids))))
 
 (define-read-only (get-proposal (id int))
-    (map-get? proposals { proposal-id: id })
-)
+    (map-get? proposals { proposal-id: id }))
 
 (define-public (get-full-proposal (id int))
     (let (
@@ -42,9 +38,7 @@
             (body (unwrap-panic (contract-call? .proposal-body get-proposal-body id)))
             (full-proposal (merge proposal body))
         )
-        (ok full-proposal)
-    )
-)
+        (ok full-proposal)))
 
 (define-public (create-proposal (title (string-utf8 50)) (body (string-utf8 3000)) (duration uint))
     (let (
@@ -56,17 +50,13 @@
         (asserts! (unwrap-panic (contract-call? .proposal-body insert-body id body)) (err u1))
         (map-insert proposals { proposal-id: id } { creator: creator, title: title, start: start, end: end, is-open: true })
         (var-set proposal-ids (unwrap-panic (as-max-len? (append (var-get proposal-ids) id) u2)))
-        (ok (var-set last-proposal-id id))
-    )
-)
+        (ok (var-set last-proposal-id id))))
 
 (define-read-only (get-yes-ballots (proposal-id int))
-    (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: true })
-)
+    (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: true }))
 
 (define-read-only (get-no-ballots (proposal-id int))
-    (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: false })
-)
+    (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: false }))
 
 (define-public (cast-ballot (proposal-id int) (is-yes bool))
     (ok (asserts! (map-insert proposal-ballots { proposal-id: proposal-id, is-yes: is-yes } (list { voter: tx-sender }))
@@ -74,7 +64,4 @@
                 (ballots (unwrap-panic (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: is-yes })))
             )
             (ok (map-set proposal-ballots { proposal-id: proposal-id, is-yes: is-yes } (unwrap-panic (as-max-len? (append ballots { voter: tx-sender }) u100))))
-            )
-        )
-    )
-)
+            ))))
