@@ -10,6 +10,7 @@
 
 (define-map proposals { proposal-id: int } { creator: principal, title: (string-utf8 50), start: uint, end: uint, is-open: bool })
 (define-map proposal-ballots { proposal-id: int, is-yes: bool } (list 100 { voter: principal }))
+(define-map member-proposals { member-id: principal } { proposal-ids: (list 100 int) })
 
 (define-data-var last-proposal-id int 0)
 (define-data-var proposal-ids (list 100 int) (list ))
@@ -20,25 +21,85 @@
 (define-private (is-proposal (proposal (optional { creator: principal, title: (string-utf8 60), start: uint, end: uint, is-open: bool })))
   (is-some proposal))
 
+(define-private (is-open-proposal (proposal (optional { creator: principal, title: (string-utf8 60), start: uint, end: uint, is-open: bool })))
+  (is-eq (get is-open (unwrap-panic proposal)) true))
+
+(define-private (is-closed-proposal (proposal (optional { creator: principal, title: (string-utf8 60), start: uint, end: uint, is-open: bool })))
+  (is-eq (get is-open (unwrap-panic proposal)) false))
+
 ;; public functions
 ;;
 
 (define-public (create-proposal (title (string-utf8 50)) (body (string-utf8 3000)) (duration uint))
     (let (
-            (id (+ 1 (var-get last-proposal-id)))
+            (proposal-id (+ 1 (var-get last-proposal-id)))
+            (member-proposal-ids (get-member-proposal-ids tx-sender))
             (creator tx-sender)
             (start block-height)
             (end (+ start duration)))
-        (asserts! (unwrap-panic (contract-call? .proposal-body insert-body id body)) (err u1))
-        (map-insert proposals { proposal-id: id } { creator: creator, title: title, start: start, end: end, is-open: true })
-        (var-set proposal-ids (unwrap-panic (as-max-len? (append (var-get proposal-ids) id) u2)))
-        (ok (var-set last-proposal-id id))))
+        (asserts! (unwrap-panic (contract-call? .proposal-body insert-body proposal-id body)) (err u1))
+        (map-insert proposals { proposal-id: proposal-id } { creator: creator, title: title, start: start, end: end, is-open: true })
+        (map-set member-proposals { member-id: tx-sender } { proposal-ids: (unwrap-panic (as-max-len? (append member-proposal-ids proposal-id) u100)) })
+        (var-set proposal-ids (unwrap-panic (as-max-len? (append (var-get proposal-ids) proposal-id) u2)))
+        (ok (var-set last-proposal-id proposal-id))))
+
+(define-read-only (get-proposal-entry-by-member (member-id principal))
+  (default-to
+    { proposal-ids: (list ) }
+    (map-get? member-proposals { member-id: member-id })
+  )
+)
+
+(define-read-only (get-member-proposal-ids (member-id principal))
+  (get proposal-ids (get-proposal-entry-by-member member-id))
+)
+
+(define-read-only (get-member-proposals (member-id principal))
+    (filter is-proposal (map get-proposal (get-member-proposal-ids tx-sender)))
+)
+
+(define-read-only (get-open-member-proposals (member-id principal))
+    (filter is-open-proposal (map get-proposal (get-member-proposal-ids tx-sender)))
+)
+
+(define-read-only (get-closed-member-proposals (member-id principal))
+    (filter is-closed-proposal (map get-proposal (get-member-proposal-ids tx-sender)))
+)
 
 (define-read-only (get-proposal-ids)
     (var-get proposal-ids))
 
 (define-read-only (get-proposals)
     (filter is-proposal (map get-proposal (get-proposal-ids))))
+
+(define-read-only (get-open-proposals)
+    (filter is-open-proposal (map get-proposal (get-proposal-ids))))
+
+(define-read-only (get-closed-proposals)
+    (filter is-closed-proposal (map get-proposal (get-proposal-ids))))
+
+(define-read-only (get-open-proposal-totals)
+    (to-int (len (get-open-proposals)))
+)
+
+(define-read-only (get-closed-proposal-totals)
+    (to-int (len (get-closed-proposals)))
+)
+
+(define-read-only (get-member-proposal-totals (member-id principal))
+    (to-int (len (get-member-proposals member-id)))
+)
+
+(define-read-only (get-open-member-proposal-totals (member-id principal))
+    (to-int (len (get-open-member-proposals member-id)))
+)
+
+(define-read-only (get-closed-member-proposal-totals (member-id principal))
+    (to-int (len (get-closed-member-proposals member-id)))
+)
+
+(define-read-only (get-proposal-totals)
+    (to-int (len (get-proposal-ids))))
 
 (define-read-only (get-proposal (id int))
     (map-get? proposals { proposal-id: id }))

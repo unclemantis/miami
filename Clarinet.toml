@@ -1,5 +1,9 @@
 [project]
 name = "miami"
+requirements = []
+[contracts.member]
+path = "contracts/member.clar"
+depends_on = []
 
 [contracts.proposal-body]
 path = "contracts/proposal-body.clar"
@@ -7,4 +11,4 @@ depends_on = []
 
 [contracts.proposal-core-v1]
 path = "contracts/proposal-core-v1.clar"
-depends_on = ["proposal-body"]
+depends_on = ["proposal-body", "member"]
