@@ -40,7 +40,7 @@
         (asserts! (unwrap-panic (contract-call? .proposal-body insert-body proposal-id body)) (err u1))
         (map-insert proposals { proposal-id: proposal-id } { creator: creator, title: title, start: start, end: end, is-open: true })
         (map-set member-proposals { member-id: tx-sender } { proposal-ids: (unwrap-panic (as-max-len? (append member-proposal-ids proposal-id) u100)) })
-        (var-set proposal-ids (unwrap-panic (as-max-len? (append (var-get proposal-ids) proposal-id) u2)))
+        (var-set proposal-ids (unwrap-panic (as-max-len? (concat (list proposal-id) (var-get proposal-ids)) u2)))
         (ok (var-set last-proposal-id proposal-id))))
 
 (define-read-only (get-proposal-entry-by-member (member-id principal))
@@ -120,7 +120,30 @@
             ))))
 
 (define-read-only (get-yes-ballots (proposal-id int))
-    (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: true }))
+    (unwrap-panic (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: true })))
 
 (define-read-only (get-no-ballots (proposal-id int))
-    (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: false }))
+    (unwrap-panic (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: false })))
+
+(define-read-only (get-yes-ballot-totals (proposal-id int))
+    (to-int (len (get-yes-ballots)))
+)
+
+(define-read-only (get-no-ballot-totals (proposal-id int))
+    (to-int (len (get-no-ballots)))
+)
+
+(define-read-only (get-ballot-totals (proposal-id int))
+    (+ (get-yes-ballot-totals) (get-no-ballot-totals))
+)
+
+(define-public (get-member-details (member-id principal))
+    (let (
+            (member (contract-call? .member get-member member-id))
+            (member-proposal-totals (get-member-proposal-totals member-id))
+            (open-member-proposal-totals (get-open-member-proposal-totals member-id))
+            (closed-member-proposal-totals (get-closed-member-proposal-totals member-id))
+        )
+        (ok (merge (unwrap-panic member) { member-proposal-totals: member-proposal-totals, open-member-proposal-totals: open-member-proposal-totals, closed-member-proposal-totals: closed-member-proposal-totals }))
+    )
+)
