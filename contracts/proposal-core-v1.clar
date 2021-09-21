@@ -8,7 +8,7 @@
 ;; data maps and vars
 ;;
 
-(define-map proposals { proposal-id: int } { creator: principal, title: (string-utf8 50), start: uint, end: uint, is-open: bool })
+(define-map proposals { proposal-id: int } { creator: principal, title: (string-utf8 50), start: uint, end: uint })
 (define-map proposal-ballots { proposal-id: int, is-yes: bool } (list 100 { voter: principal }))
 (define-map member-proposals { member-id: principal } { proposal-ids: (list 100 int) })
 
@@ -31,17 +31,19 @@
 ;;
 
 (define-public (create-proposal (title (string-utf8 50)) (body (string-utf8 3000)) (duration uint))
-    (let (
-            (proposal-id (+ 1 (var-get last-proposal-id)))
-            (member-proposal-ids (get-member-proposal-ids tx-sender))
-            (creator tx-sender)
-            (start block-height)
-            (end (+ start duration)))
-        (asserts! (unwrap-panic (contract-call? .proposal-body insert-body proposal-id body)) (err u1))
-        (map-insert proposals { proposal-id: proposal-id } { creator: creator, title: title, start: start, end: end, is-open: true })
-        (map-set member-proposals { member-id: tx-sender } { proposal-ids: (unwrap-panic (as-max-len? (append member-proposal-ids proposal-id) u100)) })
-        (var-set proposal-ids (unwrap-panic (as-max-len? (concat (list proposal-id) (var-get proposal-ids)) u2)))
-        (ok (var-set last-proposal-id proposal-id))))
+    (begin
+        (asserts! (contract-call? .member is-member tx-sender) (err u1))
+        (let (
+                (proposal-id (+ 1 (var-get last-proposal-id)))
+                (member-proposal-ids (get-member-proposal-ids tx-sender))
+                (creator tx-sender)
+                (start block-height)
+                (end (+ start duration)))
+            (asserts! (unwrap-panic (contract-call? .proposal-body insert-body proposal-id body)) (err u1))
+            (map-insert proposals { proposal-id: proposal-id } { creator: creator, title: title, start: start, end: end })
+            (map-set member-proposals { member-id: tx-sender } { proposal-ids: (unwrap-panic (as-max-len? (concat (list proposal-id) member-proposal-ids) u100)) })
+            (var-set proposal-ids (unwrap-panic (as-max-len? (concat (list proposal-id) (var-get proposal-ids)) u2)))
+            (ok (var-set last-proposal-id proposal-id)))))
 
 (define-read-only (get-proposal-entry-by-member (member-id principal))
   (default-to
@@ -101,13 +103,15 @@
 (define-read-only (get-proposal-totals)
     (to-int (len (get-proposal-ids))))
 
-(define-read-only (get-proposal (id int))
-    (map-get? proposals { proposal-id: id }))
+(define-read-only (get-proposal (proposal-id int))
+    (if (<= block-height (unwrap-panic (get end (map-get? proposals { proposal-id: proposal-id }))))
+        (some (merge (unwrap-panic (map-get? proposals { proposal-id: proposal-id })) { is-open: true }))
+        (some (merge (unwrap-panic (map-get? proposals { proposal-id: proposal-id })) { is-open: false }))))
 
-(define-public (get-full-proposal (id int))
+(define-public (get-full-proposal (proposal-id int))
     (let (
-            (proposal (unwrap-panic (get-proposal id)))
-            (body (unwrap-panic (contract-call? .proposal-body get-proposal-body id)))
+            (proposal (unwrap-panic (get-proposal proposal-id)))
+            (body (unwrap-panic (contract-call? .proposal-body get-proposal-body proposal-id)))
             (full-proposal (merge proposal body)))
         (ok full-proposal)))
 
