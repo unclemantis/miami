@@ -21,6 +21,9 @@
 (define-private (is-proposal (proposal (optional { id: int, owner: principal, title: (string-utf8 50), summary: (string-utf8 100), start: uint, end: uint, isClosed: bool })))
   (is-some proposal))
 
+(define-private (is-member (member (optional { id: principal, name: (string-utf8 50), image-url: (string-utf8 50), email: (string-utf8 50), member-proposal-totals: int, open-member-proposal-totals: int, closed-member-proposal-totals: int })))
+  (is-some member))
+
 (define-private (is-open-proposal (proposal (optional { id: int, owner: principal, title: (string-utf8 50), summary: (string-utf8 100), start: uint, end: uint, isClosed: bool })))
   (is-eq (get isClosed (unwrap-panic proposal)) false))
 
@@ -32,7 +35,7 @@
 
 (define-public (create-proposal (title (string-utf8 50)) (summary (string-utf8 100)) (body (string-utf8 3000)) (duration uint))
     (begin
-        (asserts! (contract-call? .member is-member tx-sender) (err u1))
+        (asserts! (contract-call? .member does-member-exist tx-sender) (err u1))
         (let (
                 (proposal-id (+ 1 (var-get last-proposal-id)))
                 (member-proposal-ids (get-member-proposal-ids tx-sender))
@@ -129,11 +132,11 @@
 (define-read-only (get-ballot-totals (proposal-id int))
     (+ (get-yes-ballot-totals) (get-no-ballot-totals)))
 
-(define-public (get-member-details (member-id principal))
-    (let (
-            (member (contract-call? .member get-member member-id))
-            (member-proposal-totals (get-member-proposal-totals member-id))
-            (open-member-proposal-totals (get-open-member-proposal-totals member-id))
-            (closed-member-proposal-totals (get-closed-member-proposal-totals member-id))
-        )
-        (ok (merge (unwrap-panic member) { member-proposal-totals: member-proposal-totals, open-member-proposal-totals: open-member-proposal-totals, closed-member-proposal-totals: closed-member-proposal-totals }))))
+(define-read-only (get-members)
+    (filter is-member (map get-member (contract-call? .member get-member-ids))))
+
+(define-read-only (get-member (member-id principal))
+(some (merge (unwrap-panic (contract-call? .member get-member member-id)) 
+        { member-proposal-totals: (get-member-proposal-totals member-id), 
+        open-member-proposal-totals: (get-open-member-proposal-totals member-id), 
+        closed-member-proposal-totals: (get-closed-member-proposal-totals member-id) })))
