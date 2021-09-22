@@ -48,25 +48,19 @@
 (define-read-only (get-proposal-entry-by-member (member-id principal))
   (default-to
     { proposal-ids: (list ) }
-    (map-get? member-proposals { member-id: member-id })
-  )
-)
+    (map-get? member-proposals { member-id: member-id })))
 
 (define-read-only (get-member-proposal-ids (member-id principal))
-  (get proposal-ids (get-proposal-entry-by-member member-id))
-)
+  (get proposal-ids (get-proposal-entry-by-member member-id)))
 
 (define-read-only (get-member-proposals (member-id principal))
-    (filter is-proposal (map get-proposal (get-member-proposal-ids tx-sender)))
-)
+    (filter is-proposal (map get-proposal (get-member-proposal-ids tx-sender))))
 
 (define-read-only (get-open-member-proposals (member-id principal))
-    (filter is-open-proposal (map get-proposal (get-member-proposal-ids tx-sender)))
-)
+    (filter is-open-proposal (map get-proposal (get-member-proposal-ids tx-sender))))
 
 (define-read-only (get-closed-member-proposals (member-id principal))
-    (filter is-closed-proposal (map get-proposal (get-member-proposal-ids tx-sender)))
-)
+    (filter is-closed-proposal (map get-proposal (get-member-proposal-ids tx-sender))))
 
 (define-read-only (get-proposal-ids)
     (var-get proposal-ids))
@@ -81,24 +75,19 @@
     (filter is-closed-proposal (map get-proposal (get-proposal-ids))))
 
 (define-read-only (get-open-proposal-totals)
-    (to-int (len (get-open-proposals)))
-)
+    (to-int (len (get-open-proposals))))
 
 (define-read-only (get-closed-proposal-totals)
-    (to-int (len (get-closed-proposals)))
-)
+    (to-int (len (get-closed-proposals))))
 
 (define-read-only (get-member-proposal-totals (member-id principal))
-    (to-int (len (get-member-proposals member-id)))
-)
+    (to-int (len (get-member-proposals member-id))))
 
 (define-read-only (get-open-member-proposal-totals (member-id principal))
-    (to-int (len (get-open-member-proposals member-id)))
-)
+    (to-int (len (get-open-member-proposals member-id))))
 
 (define-read-only (get-closed-member-proposal-totals (member-id principal))
-    (to-int (len (get-closed-member-proposals member-id)))
-)
+    (to-int (len (get-closed-member-proposals member-id))))
 
 (define-read-only (get-proposal-totals)
     (to-int (len (get-proposal-ids))))
@@ -116,12 +105,14 @@
         (ok full-proposal)))
 
 (define-public (cast-ballot (proposal-id int) (is-yes bool))
-    (ok (asserts! (map-insert proposal-ballots { proposal-id: proposal-id, is-yes: is-yes } (list { voter: tx-sender }))
-        (let (
-                (ballots (unwrap-panic (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: is-yes })))
-            )
-            (ok (map-set proposal-ballots { proposal-id: proposal-id, is-yes: is-yes } (unwrap-panic (as-max-len? (append ballots { voter: tx-sender }) u100))))
-            ))))
+    (begin
+        (asserts! (<= block-height (unwrap-panic (get end (map-get? proposals { proposal-id: proposal-id })))) (err u1))
+        (ok (asserts! (map-insert proposal-ballots { proposal-id: proposal-id, is-yes: is-yes } (list { voter: tx-sender }))
+            (let (
+                    (ballots (unwrap-panic (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: is-yes })))
+                )
+                (ok (map-set proposal-ballots { proposal-id: proposal-id, is-yes: is-yes } (unwrap-panic (as-max-len? (append ballots { voter: tx-sender }) u100))))
+                )))))
 
 (define-read-only (get-yes-ballots (proposal-id int))
     (unwrap-panic (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: true })))
@@ -130,16 +121,13 @@
     (unwrap-panic (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: false })))
 
 (define-read-only (get-yes-ballot-totals (proposal-id int))
-    (to-int (len (get-yes-ballots)))
-)
+    (to-int (len (get-yes-ballots))))
 
 (define-read-only (get-no-ballot-totals (proposal-id int))
-    (to-int (len (get-no-ballots)))
-)
+    (to-int (len (get-no-ballots))))
 
 (define-read-only (get-ballot-totals (proposal-id int))
-    (+ (get-yes-ballot-totals) (get-no-ballot-totals))
-)
+    (+ (get-yes-ballot-totals) (get-no-ballot-totals)))
 
 (define-public (get-member-details (member-id principal))
     (let (
@@ -148,6 +136,4 @@
             (open-member-proposal-totals (get-open-member-proposal-totals member-id))
             (closed-member-proposal-totals (get-closed-member-proposal-totals member-id))
         )
-        (ok (merge (unwrap-panic member) { member-proposal-totals: member-proposal-totals, open-member-proposal-totals: open-member-proposal-totals, closed-member-proposal-totals: closed-member-proposal-totals }))
-    )
-)
+        (ok (merge (unwrap-panic member) { member-proposal-totals: member-proposal-totals, open-member-proposal-totals: open-member-proposal-totals, closed-member-proposal-totals: closed-member-proposal-totals }))))
