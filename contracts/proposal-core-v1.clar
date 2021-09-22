@@ -21,7 +21,7 @@
 (define-private (is-proposal (proposal (optional { id: int, owner: principal, title: (string-utf8 50), summary: (string-utf8 100), start: uint, end: uint, isClosed: bool })))
   (is-some proposal))
 
-(define-private (is-member (member (optional { id: principal, name: (string-utf8 50), image-url: (string-utf8 50), email: (string-utf8 50), member-proposal-totals: int, open-member-proposal-totals: int, closed-member-proposal-totals: int })))
+(define-private (is-member (member (optional { id: principal, name: (string-utf8 50), imageUrl: (string-utf8 50), email: (string-utf8 50), member-proposal-totals: int, open-member-proposal-totals: int, closed-member-proposal-totals: int })))
   (is-some member))
 
 (define-private (is-open-proposal (proposal (optional { id: int, owner: principal, title: (string-utf8 50), summary: (string-utf8 100), start: uint, end: uint, isClosed: bool })))
@@ -100,12 +100,8 @@
         (some (merge (unwrap-panic (map-get? proposals { proposal-id: proposal-id })) { isClosed: false }))
         (some (merge (unwrap-panic (map-get? proposals { proposal-id: proposal-id })) { isClosed: true }))))
 
-(define-public (get-full-proposal (proposal-id int))
-    (let (
-            (proposal (unwrap-panic (get-proposal proposal-id)))
-            (body (unwrap-panic (contract-call? .proposal-body get-proposal-body proposal-id)))
-            (full-proposal (merge proposal body)))
-        (ok full-proposal)))
+(define-read-only (get-full-proposal (proposal-id int))
+    (merge (unwrap-panic (get-proposal proposal-id)) (unwrap-panic (contract-call? .proposal-body get-proposal-body proposal-id))))
 
 (define-public (cast-ballot (proposal-id int) (is-yes bool))
     (begin
