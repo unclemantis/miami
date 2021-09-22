@@ -8,7 +8,7 @@
 ;; data maps and vars
 ;;
 
-(define-map proposals { proposal-id: int } { creator: principal, title: (string-utf8 50), start: uint, end: uint })
+(define-map proposals { proposal-id: int } { id: int, owner: principal, title: (string-utf8 50), summary: (string-utf8 100), start: uint, end: uint })
 (define-map proposal-ballots { proposal-id: int, is-yes: bool } (list 100 { voter: principal }))
 (define-map member-proposals { member-id: principal } { proposal-ids: (list 100 int) })
 
@@ -18,19 +18,19 @@
 ;; private functions
 ;;
 
-(define-private (is-proposal (proposal (optional { creator: principal, title: (string-utf8 60), start: uint, end: uint, is-open: bool })))
+(define-private (is-proposal (proposal (optional { id: int, owner: principal, title: (string-utf8 50), summary: (string-utf8 100), start: uint, end: uint, isClosed: bool })))
   (is-some proposal))
 
-(define-private (is-open-proposal (proposal (optional { creator: principal, title: (string-utf8 60), start: uint, end: uint, is-open: bool })))
-  (is-eq (get is-open (unwrap-panic proposal)) true))
+(define-private (is-open-proposal (proposal (optional { id: int, owner: principal, title: (string-utf8 50), summary: (string-utf8 100), start: uint, end: uint, isClosed: bool })))
+  (is-eq (get isClosed (unwrap-panic proposal)) false))
 
-(define-private (is-closed-proposal (proposal (optional { creator: principal, title: (string-utf8 60), start: uint, end: uint, is-open: bool })))
-  (is-eq (get is-open (unwrap-panic proposal)) false))
+(define-private (is-closed-proposal (proposal (optional { id: int, owner: principal, title: (string-utf8 50), summary: (string-utf8 100), start: uint, end: uint, isClosed: bool })))
+  (is-eq (get isClosed (unwrap-panic proposal)) true))
 
 ;; public functions
 ;;
 
-(define-public (create-proposal (title (string-utf8 50)) (body (string-utf8 3000)) (duration uint))
+(define-public (create-proposal (title (string-utf8 50)) (summary (string-utf8 100)) (body (string-utf8 3000)) (duration uint))
     (begin
         (asserts! (contract-call? .member is-member tx-sender) (err u1))
         (let (
@@ -40,7 +40,7 @@
                 (start block-height)
                 (end (+ start duration)))
             (asserts! (unwrap-panic (contract-call? .proposal-body insert-body proposal-id body)) (err u1))
-            (map-insert proposals { proposal-id: proposal-id } { creator: creator, title: title, start: start, end: end })
+            (map-insert proposals { proposal-id: proposal-id } { id: proposal-id, owner: creator, title: title, summary: summary, start: start, end: end })
             (map-set member-proposals { member-id: tx-sender } { proposal-ids: (unwrap-panic (as-max-len? (concat (list proposal-id) member-proposal-ids) u100)) })
             (var-set proposal-ids (unwrap-panic (as-max-len? (concat (list proposal-id) (var-get proposal-ids)) u2)))
             (ok (var-set last-proposal-id proposal-id)))))
@@ -105,8 +105,8 @@
 
 (define-read-only (get-proposal (proposal-id int))
     (if (<= block-height (unwrap-panic (get end (map-get? proposals { proposal-id: proposal-id }))))
-        (some (merge (unwrap-panic (map-get? proposals { proposal-id: proposal-id })) { is-open: true }))
-        (some (merge (unwrap-panic (map-get? proposals { proposal-id: proposal-id })) { is-open: false }))))
+        (some (merge (unwrap-panic (map-get? proposals { proposal-id: proposal-id })) { isClosed: false }))
+        (some (merge (unwrap-panic (map-get? proposals { proposal-id: proposal-id })) { isClosed: true }))))
 
 (define-public (get-full-proposal (proposal-id int))
     (let (
