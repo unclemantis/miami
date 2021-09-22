@@ -15,10 +15,13 @@
 ;; private functions
 ;;
 
+(define-private (is-member (member (optional { id: principal, name: (string-utf8 50), image-url: (string-utf8 50), email: (string-utf8 50) })))
+  (is-some member))
+
 ;; public functions
 ;;
 
-(define-read-only (is-member (member-id principal))
+(define-read-only (does-member-exist (member-id principal))
     (begin
         (if (is-some (map-get? members { member-id: member-id }))
             true
@@ -29,6 +32,9 @@
 
 (define-read-only (get-member (member-id principal))
     (map-get? members { member-id: member-id }))
+
+(define-read-only (get-members)
+    (filter is-member (map get-member (get-member-ids))))
 
 (define-public (create-member (name (string-utf8 50)) (image-url (string-utf8 50)) (email (string-utf8 50)))
     (begin
