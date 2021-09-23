@@ -134,3 +134,7 @@
 (define-read-only (get-proposal-votes (proposal-id int))
     (map-get? proposal-votes { proposal-id: proposal-id })
 )
+
+(define-read-only (get-proposal-total-votes (proposal-id int))
+    (to-int (len (unwrap-panic (map-get? proposal-votes { proposal-id: proposal-id }))))
+)
