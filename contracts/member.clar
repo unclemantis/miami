@@ -8,7 +8,7 @@
 ;; data maps and vars
 ;;
 
-(define-map members { member-id: principal } { id: principal, name: (string-utf8 50), imageUrl: (string-utf8 50), email: (string-utf8 50) })
+(define-map members { member-id: principal } { name: (string-utf8 50), imageUrl: (string-utf8 50), email: (string-utf8 50) })
 
 (define-data-var member-ids (list 100 principal) (list ))
 
@@ -31,13 +31,13 @@
     (var-get member-ids))
 
 (define-read-only (get-member (member-id principal))
-    (map-get? members { member-id: member-id }))
+    (some (merge (unwrap-panic (map-get? members { member-id: member-id })) { id: member-id })))
 
 (define-read-only (get-members)
     (filter is-member (map get-member (get-member-ids))))
 
 (define-public (create-member (name (string-utf8 50)) (imageUrl (string-utf8 50)) (email (string-utf8 50)))
     (begin
-        (asserts! (map-insert members { member-id: tx-sender } { id: tx-sender, name: name, imageUrl: imageUrl, email: email })
+        (asserts! (map-insert members { member-id: tx-sender } { name: name, imageUrl: imageUrl, email: email })
             (err u1))
-        (ok (var-set member-ids (unwrap-panic (as-max-len? (append (var-get member-ids) tx-sender) u2))))))
+        (ok (var-set member-ids (unwrap-panic (as-max-len? (append (var-get member-ids) tx-sender) u100))))))
