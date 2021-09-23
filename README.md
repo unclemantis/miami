@@ -1,6 +1,7 @@
 # miami
 
 ```
+Contracts
 +------------------------------------------------------------+-----------------------------------------------------------+
 | Contract identifier                                        | Public functions                                          |
 +------------------------------------------------------------+-----------------------------------------------------------+
@@ -18,15 +19,14 @@
 |                                                            |     (proposal-id int)                                     |
 |                                                            |     (body (string-utf8 3000)))                            |
 +------------------------------------------------------------+-----------------------------------------------------------+
-| ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.proposal-core-v1 | (cast-ballot                                              |
-|                                                            |     (proposal-id int)                                     |
-|                                                            |     (is-yes bool))                                        |
-|                                                            | (create-proposal                                          |
+| ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.proposal-core-v1 | (create-proposal                                          |
 |                                                            |     (title (string-utf8 50))                              |
 |                                                            |     (summary (string-utf8 100))                           |
 |                                                            |     (body (string-utf8 3000))                             |
 |                                                            |     (duration uint))                                      |
-|                                                            | (get-ballot-totals (proposal-id int))                     |
+|                                                            | (create-proposal-vote                                     |
+|                                                            |     (proposal-id int)                                     |
+|                                                            |     (yes bool))                                           |
 |                                                            | (get-closed-member-proposal-totals (member-id principal)) |
 |                                                            | (get-closed-member-proposals (member-id principal))       |
 |                                                            | (get-closed-proposal-totals)                              |
@@ -37,8 +37,6 @@
 |                                                            | (get-member-proposal-totals (member-id principal))        |
 |                                                            | (get-member-proposals (member-id principal))              |
 |                                                            | (get-members)                                             |
-|                                                            | (get-no-ballot-totals (proposal-id int))                  |
-|                                                            | (get-no-ballots (proposal-id int))                        |
 |                                                            | (get-open-member-proposal-totals (member-id principal))   |
 |                                                            | (get-open-member-proposals (member-id principal))         |
 |                                                            | (get-open-proposal-totals)                                |
@@ -46,9 +44,8 @@
 |                                                            | (get-proposal (proposal-id int))                          |
 |                                                            | (get-proposal-ids)                                        |
 |                                                            | (get-proposal-totals)                                     |
+|                                                            | (get-proposal-votes (proposal-id int))                    |
 |                                                            | (get-proposals)                                           |
-|                                                            | (get-yes-ballot-totals (proposal-id int))                 |
-|                                                            | (get-yes-ballots (proposal-id int))                       |
 +------------------------------------------------------------+-----------------------------------------------------------+
 
 Initialized balances
