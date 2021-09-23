@@ -19,9 +19,22 @@ Clarinet.test({
             Tx.contractCall('proposal-core-v1', 'create-proposal',[types.utf8("Proposal 2"), types.utf8("fds s  er wersdf sdf sdf dsf ds"), types.utf8("This is only a test"), types.uint(2100)], wallet_3.address),
             Tx.contractCall('proposal-core-v1', 'create-proposal',[types.utf8("Proposal 2"), types.utf8("fds s  er wersdf sdf sdf dsf ds"), types.utf8("This is only a test"), types.uint(2100)], wallet_4.address),
             Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(1), types.bool(true)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(1), types.bool(false)], wallet_2.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(1), types.bool(true)], wallet_3.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(1), types.bool(false)], wallet_4.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(2), types.bool(true)], wallet_1.address),
             Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(2), types.bool(false)], wallet_2.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(2), types.bool(true)], wallet_3.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(2), types.bool(false)], wallet_4.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(3), types.bool(true)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(3), types.bool(false)], wallet_2.address),
             Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(3), types.bool(true)], wallet_3.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(3), types.bool(false)], wallet_4.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(4), types.bool(true)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(4), types.bool(false)], wallet_2.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(4), types.bool(true)], wallet_3.address),
             Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(4), types.bool(false)], wallet_4.address),
+            Tx.contractCall('proposal-core-v1', 'get-ballot-totals',[types.int(1)], wallet_1.address),
         ]);
         console.log(block.receipts[0].result);
         console.log(block.receipts[1].result);
@@ -35,5 +48,18 @@ Clarinet.test({
         console.log(block.receipts[9].result);
         console.log(block.receipts[10].result);
         console.log(block.receipts[11].result);
+        console.log(block.receipts[12].result);
+        console.log(block.receipts[13].result);
+        console.log(block.receipts[14].result);
+        console.log(block.receipts[15].result);
+        console.log(block.receipts[16].result);
+        console.log(block.receipts[17].result);
+        console.log(block.receipts[18].result);
+        console.log(block.receipts[19].result);
+        console.log(block.receipts[20].result);
+        console.log(block.receipts[21].result);
+        console.log(block.receipts[22].result);
+        console.log(block.receipts[23].result);
+        console.log(block.receipts[24].result);
     },
 });

@@ -143,4 +143,4 @@
     (to-int (len (get-no-ballots))))
 
 (define-read-only (get-ballot-totals (proposal-id int))
-    (+ (get-yes-ballot-totals) (get-no-ballot-totals)))
+    (+ (get-yes-ballot-totals proposal-id) (get-no-ballot-totals proposal-id)))
