@@ -137,10 +137,10 @@
     (unwrap-panic (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: false })))
 
 (define-read-only (get-yes-ballot-totals (proposal-id int))
-    (to-int (len (get-yes-ballots))))
+    (to-int (len (get-yes-ballots proposal-id))))
 
 (define-read-only (get-no-ballot-totals (proposal-id int))
-    (to-int (len (get-no-ballots))))
+    (to-int (len (get-no-ballots proposal-id))))
 
 (define-read-only (get-ballot-totals (proposal-id int))
     (+ (get-yes-ballot-totals proposal-id) (get-no-ballot-totals proposal-id)))
