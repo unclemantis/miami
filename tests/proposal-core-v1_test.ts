@@ -1,5 +1,5 @@
 
-import { Clarinet, Tx, Chain, Account, types } from 'https://deno.land/x/clarinet@v0.14.0/index.ts';
+import { Clarinet, Tx, Chain, Account, types } from 'https://deno.land/x/clarinet@v0.15.4/index.ts';
 //import { assertEquals } from 'https://deno.land/std@0.90.0/testing/asserts.ts';
 
 Clarinet.test({
@@ -18,11 +18,10 @@ Clarinet.test({
             Tx.contractCall('proposal-core-v1', 'create-proposal',[types.utf8("Proposal 2"), types.utf8("fds s  er wersdf sdf sdf dsf ds"), types.utf8("This is only a test"), types.uint(2100)], wallet_2.address),
             Tx.contractCall('proposal-core-v1', 'create-proposal',[types.utf8("Proposal 2"), types.utf8("fds s  er wersdf sdf sdf dsf ds"), types.utf8("This is only a test"), types.uint(2100)], wallet_3.address),
             Tx.contractCall('proposal-core-v1', 'create-proposal',[types.utf8("Proposal 2"), types.utf8("fds s  er wersdf sdf sdf dsf ds"), types.utf8("This is only a test"), types.uint(2100)], wallet_4.address),
-            Tx.contractCall('proposal-core-v1', 'get-proposals',[], wallet_1.address),
             Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(1), types.bool(true)], wallet_1.address),
             Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(2), types.bool(false)], wallet_2.address),
-            Tx.contractCall('proposal-core-v1', 'get-members',[], wallet_1.address),
-            Tx.contractCall('proposal-core-v1', 'get-full-proposal',[types.int(1)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(3), types.bool(true)], wallet_3.address),
+            Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(4), types.bool(false)], wallet_4.address),
         ]);
         console.log(block.receipts[0].result);
         console.log(block.receipts[1].result);
@@ -36,6 +35,5 @@ Clarinet.test({
         console.log(block.receipts[9].result);
         console.log(block.receipts[10].result);
         console.log(block.receipts[11].result);
-        console.log(block.receipts[12].result);
     },
 });

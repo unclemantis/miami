@@ -21,9 +21,9 @@
 ;; public functions
 ;;
 
-(define-read-only (does-member-exist (member-id principal))
+(define-read-only (does-member-exist)
     (begin
-        (if (is-some (map-get? members { member-id: member-id }))
+        (if (is-some (map-get? members { member-id: tx-sender }))
             true
             false)))
 
