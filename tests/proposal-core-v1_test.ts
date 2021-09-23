@@ -34,7 +34,8 @@ Clarinet.test({
             Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(4), types.bool(false)], wallet_2.address),
             Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(4), types.bool(true)], wallet_3.address),
             Tx.contractCall('proposal-core-v1', 'cast-ballot',[types.int(4), types.bool(false)], wallet_4.address),
-            Tx.contractCall('proposal-core-v1', 'get-ballot-totals',[types.int(1)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-proposal-ballot-result-member-totals',[types.int(1)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-proposal-ballot-result-members',[types.int(1)], wallet_1.address),
         ]);
         console.log(block.receipts[0].result);
         console.log(block.receipts[1].result);
@@ -61,5 +62,6 @@ Clarinet.test({
         console.log(block.receipts[22].result);
         console.log(block.receipts[23].result);
         console.log(block.receipts[24].result);
+        console.log(block.receipts[25].result);
     },
 });

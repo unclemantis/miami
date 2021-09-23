@@ -9,7 +9,7 @@
 ;;
 
 (define-map proposals { proposal-id: int } { owner: principal, title: (string-utf8 50), summary: (string-utf8 100), start: uint, end: uint })
-(define-map proposal-ballots { proposal-id: int, is-yes: bool } (list 100 { voter: principal }))
+(define-map proposal-ballot-result-members { proposal-id: int, is-yes: bool } (list 100 { member: principal }))
 (define-map member-proposals { member-id: principal } { proposal-ids: (list 100 int) })
 
 (define-data-var last-proposal-id int 0)
@@ -55,11 +55,11 @@
 (define-public (cast-ballot (proposal-id int) (is-yes bool))
     (begin
         (asserts! (<= block-height (unwrap-panic (get end (map-get? proposals { proposal-id: proposal-id })))) (err u1))
-        (ok (asserts! (map-insert proposal-ballots { proposal-id: proposal-id, is-yes: is-yes } (list { voter: tx-sender }))
+        (ok (asserts! (map-insert proposal-ballot-result-members { proposal-id: proposal-id, is-yes: is-yes } (list { member: tx-sender }))
             (let (
-                    (ballots (unwrap-panic (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: is-yes })))
+                    (ballots (unwrap-panic (map-get? proposal-ballot-result-members { proposal-id: proposal-id, is-yes: is-yes })))
                 )
-                (ok (map-set proposal-ballots { proposal-id: proposal-id, is-yes: is-yes } (unwrap-panic (as-max-len? (append ballots { voter: tx-sender }) u100))))
+                (ok (map-set proposal-ballot-result-members { proposal-id: proposal-id, is-yes: is-yes } (unwrap-panic (as-max-len? (append ballots { member: tx-sender }) u100))))
                 )))))
 
 ;; member read only functions
@@ -127,20 +127,23 @@
 (define-read-only (get-full-proposal (proposal-id int))
     (merge (unwrap-panic (get-proposal proposal-id)) (unwrap-panic (contract-call? .proposal-body get-proposal-body proposal-id))))
 
-;; ballot read only functions
+;; proposal ballot result members read only functions
 ;;
 
-(define-read-only (get-yes-ballots (proposal-id int))
-    (unwrap-panic (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: true })))
+(define-read-only (get-yes-proposal-ballot-result-members (proposal-id int))
+    (unwrap-panic (map-get? proposal-ballot-result-members { proposal-id: proposal-id, is-yes: true })))
 
-(define-read-only (get-no-ballots (proposal-id int))
-    (unwrap-panic (map-get? proposal-ballots { proposal-id: proposal-id, is-yes: false })))
+(define-read-only (get-no-proposal-ballot-result-members (proposal-id int))
+    (unwrap-panic (map-get? proposal-ballot-result-members { proposal-id: proposal-id, is-yes: false })))
 
-(define-read-only (get-yes-ballot-totals (proposal-id int))
-    (to-int (len (get-yes-ballots proposal-id))))
+(define-read-only (get-proposal-ballot-result-members (proposal-id int))
+    (unwrap-panic (as-max-len? (concat (get-yes-proposal-ballot-result-members proposal-id) (get-no-proposal-ballot-result-members proposal-id)) u200)))
 
-(define-read-only (get-no-ballot-totals (proposal-id int))
-    (to-int (len (get-no-ballots proposal-id))))
+(define-read-only (get-yes-proposal-ballot-result-member-totals (proposal-id int))
+    (to-int (len (get-yes-proposal-ballot-result-members proposal-id))))
 
-(define-read-only (get-ballot-totals (proposal-id int))
-    (+ (get-yes-ballot-totals proposal-id) (get-no-ballot-totals proposal-id)))
+(define-read-only (get-no-proposal-ballot-result-member-totals (proposal-id int))
+    (to-int (len (get-no-proposal-ballot-result-members proposal-id))))
+
+(define-read-only (get-proposal-ballot-result-member-totals (proposal-id int))
+    (+ (get-yes-proposal-ballot-result-member-totals proposal-id) (get-no-proposal-ballot-result-member-totals proposal-id)))
