@@ -43,9 +43,25 @@ Clarinet.test({
             Tx.contractCall('proposal-core-v1', 'get-proposal-votes',[types.int(3)], wallet_1.address),
             Tx.contractCall('proposal-core-v1', 'get-proposal-votes',[types.int(4)], wallet_1.address),
             Tx.contractCall('proposal-core-v1', 'get-proposal-total-votes',[types.int(1)], wallet_1.address),
-            Tx.contractCall('proposal-core-v1', 'get-proposal-total-votes',[types.int(1)], wallet_1.address),
-            Tx.contractCall('proposal-core-v1', 'get-proposal-total-votes',[types.int(1)], wallet_1.address),
-            Tx.contractCall('proposal-core-v1', 'get-proposal-total-votes',[types.int(1)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-proposal-total-votes',[types.int(2)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-proposal-total-votes',[types.int(3)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-proposal-total-votes',[types.int(4)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-yes-proposal-total-votes',[types.int(1)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-yes-proposal-total-votes',[types.int(2)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-yes-proposal-total-votes',[types.int(3)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-yes-proposal-total-votes',[types.int(4)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-no-proposal-total-votes',[types.int(1)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-no-proposal-total-votes',[types.int(2)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-no-proposal-total-votes',[types.int(3)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-no-proposal-total-votes',[types.int(4)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-yes-proposal-votes',[types.int(1)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-yes-proposal-votes',[types.int(2)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-yes-proposal-votes',[types.int(3)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-yes-proposal-votes',[types.int(4)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-no-proposal-votes',[types.int(1)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-no-proposal-votes',[types.int(2)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-no-proposal-votes',[types.int(3)], wallet_1.address),
+            Tx.contractCall('proposal-core-v1', 'get-no-proposal-votes',[types.int(4)], wallet_1.address),
         ]);
         console.log(block.receipts[0].result);
         console.log(block.receipts[1].result);
@@ -83,5 +99,21 @@ Clarinet.test({
         console.log(block.receipts[33].result);
         console.log(block.receipts[34].result);
         console.log(block.receipts[35].result);
+        console.log(block.receipts[36].result);
+        console.log(block.receipts[37].result);
+        console.log(block.receipts[38].result);
+        console.log(block.receipts[39].result);
+        console.log(block.receipts[40].result);
+        console.log(block.receipts[41].result);
+        console.log(block.receipts[42].result);
+        console.log(block.receipts[43].result);
+        console.log(block.receipts[44].result);
+        console.log(block.receipts[45].result);
+        console.log(block.receipts[46].result);
+        console.log(block.receipts[47].result);
+        console.log(block.receipts[48].result);
+        console.log(block.receipts[49].result);
+        console.log(block.receipts[50].result);
+        console.log(block.receipts[51].result);
     },
 });

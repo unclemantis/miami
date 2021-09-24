@@ -33,6 +33,12 @@
 (define-private (is-closed-proposal (proposal (optional { id: int, owner: principal, title: (string-utf8 50), summary: (string-utf8 100), start: uint, end: uint, isClosed: bool })))
   (is-eq (get isClosed (unwrap-panic proposal)) true))
 
+(define-private (is-yes-proposal-vote (vote { voter: principal, yes: bool }))
+  (is-eq (get yes vote) true))
+
+(define-private (is-no-proposal-vote (vote { voter: principal, yes: bool }))
+  (is-eq (get yes vote) false))
+
 ;; public functions
 ;;
 
@@ -138,3 +144,17 @@
 (define-read-only (get-proposal-total-votes (proposal-id int))
     (to-int (len (unwrap-panic (map-get? proposal-votes { proposal-id: proposal-id }))))
 )
+
+(define-read-only (get-yes-proposal-votes (proposal-id int))
+    (filter is-yes-proposal-vote (unwrap-panic (get-proposal-votes proposal-id)))
+)
+
+(define-read-only (get-no-proposal-votes (proposal-id int))
+    (filter is-no-proposal-vote (unwrap-panic (get-proposal-votes proposal-id)))
+)
+
+(define-read-only (get-yes-proposal-total-votes (proposal-id int))
+    (to-int (len (get-yes-proposal-votes proposal-id))))
+
+(define-read-only (get-no-proposal-total-votes (proposal-id int))
+    (to-int (len (get-no-proposal-votes proposal-id))))
